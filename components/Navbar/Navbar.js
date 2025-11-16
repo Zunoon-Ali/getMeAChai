@@ -9,14 +9,6 @@ import "./Navbar.css";
 const navbar = () => {
   const [showdropdown, setshowdropdown] = useState(false);
   const { data: session } = useSession();
-  // if (session) {
-  //   return (
-  //     <>
-  //       Signed in as {session.user.email} <br />
-  //       <button onClick={() => signOut()}>Sign out</button>
-  //     </>
-  //   );
-  // }
 
   return (
     <nav className="bg-blue-950 text-white p-2 flex items-center justify-between w-full">
@@ -47,11 +39,6 @@ const navbar = () => {
         {session ? (
           <>
             <button
-              onBlur={() => {
-                setTimeout(() => {
-                  setshowdropdown(false);
-                }, 100);
-              }}
               id="dropdownDelayButton"
               data-dropdown-toggle="dropdownDelay"
               data-dropdown-delay="500"
@@ -94,7 +81,8 @@ const navbar = () => {
               >
                 <li>
                   <Link
-                    href={"/dashboard"}
+                    href="/dashboard"
+                    onClick={() => setshowdropdown(false)}
                     className="inline-flex items-center w-full p-2 hover:bg-neutral-tertiary-medium hover:text-heading rounded"
                   >
                     Dashboard
@@ -103,6 +91,9 @@ const navbar = () => {
                 <li>
                   <Link
                     href="#"
+                    onClick={() => {
+                      setshowdropdown(false);
+                    }}
                     className="inline-flex items-center w-full p-2 hover:bg-neutral-tertiary-medium hover:text-heading rounded"
                   >
                     Your Page
@@ -112,10 +103,13 @@ const navbar = () => {
                 <li>
                   <Link
                     href="#"
+                    onClick={() => {
+                      setshowdropdown(false);
+                      signOut();
+                    }}
                     className="inline-flex items-center w-full p-2 hover:bg-neutral-tertiary-medium hover:text-heading rounded"
-                    onClick={() => signOut()}
                   >
-                    Sign out
+                    Sign Out
                   </Link>
                 </li>
               </ul>

@@ -4,6 +4,10 @@ import NextAuth from "next-auth";
 // import GoogleProvider from "next-auth/providers/google";
 // import EmailProvider from "next-auth/providers/email";
 import GitHubProvider from "next-auth/providers/github";
+import mongoose from "mongoose";
+import User from "@/models/User";
+import Payment from "@/models/Payment";
+
 
 export const authoptions = NextAuth({
   providers: [
@@ -30,6 +34,35 @@ export const authoptions = NextAuth({
     //   from: "NextAuth.js <no-reply@example.com>",
     // }),
   ],
+  callbacks: {
+  async signIn({ user, account, profile }) {
+    if (account.provider === "github") {
+      // Connect to the database
+      await mongoose.connect(process.env.MONGO_URI);
+
+      // GitHub email might not always be returned, handle undefined
+      const userEmail = user.email;
+      if (!userEmail) return false; // Cannot sign in without email
+
+      const currentUser = await User.findOne({ email: userEmail });
+
+      if (!currentUser) {
+        const newUser = new User({
+          email: userEmail,
+          username: userEmail.split("@")[0],
+        });
+        await newUser.save();
+        user.name = newUser.username;
+      } else {
+        user.name = currentUser.username;
+      }
+
+      return true;
+    }
+    return true;
+  },
+},
+
 });
 
-export {authoptions as GET, authoptions as POST}
+export { authoptions as GET, authoptions as POST };

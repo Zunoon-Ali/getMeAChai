@@ -23,7 +23,7 @@ export default async function UsernamePage({ params }) {
       </div>
 
       <div className="profile-info flex items-center justify-center flex-col w-full">
-        <div className="info mx-auto my-24 text-center">
+        <div className="info mx-auto mt-24 mb-10 text-center">
           <h2 className="text-xl font-bold text-slate-200 capitalize">
             {trimUsername}
           </h2>
@@ -42,30 +42,124 @@ export default async function UsernamePage({ params }) {
           </div>
         </div>
 
-        <div className="payment-info flex items-stretch justify-center gap-6 mt-10 w-[90%]">
+        <div className="payment-info flex items-stretch justify-center gap-6 mt-4 w-[90%]">
           {/* Left Support Box */}
           <div className="support flex-1 bg-slate-900 p-6 rounded-lg flex flex-col justify-between w-1/2">
             <h2 className="text-lg font-bold mb-4">Support</h2>
-            <ul className="flex-1 flex flex-col justify-evenly gap-2 text-white">
+            <ul className="flex-1 flex flex-col gap-2 text-white">
               <li>
-                1 Lorem ipsum dolor sit amet consectetur adipisicing elit. Nisi
-                cum nihil sint.
+                <div className="my-2 flex items-center">
+                  <img
+                    src="/assets/avatar.gif"
+                    alt="avatar"
+                    width={30}
+                    className="mr-2 rounded-full"
+                  />
+
+                  <span className="text-sm leading-5">
+                    <span className="text-lg font-semibold">Rohan Ali</span>{" "}
+                    donated <strong className="text-md">$10</strong> with a
+                    message:{" "}
+                    <span className="italic">
+                      “ I support you bro, lots of love ♥. ”
+                    </span>
+                  </span>
+                </div>
               </li>
               <li>
-                2 Lorem, ipsum dolor sit amet consectetur adipisicing elit.
-                Reiciendis molestiae corporis sit.
+                <div className="my-2 flex items-center">
+                  <img
+                    src="/assets/avatar.gif"
+                    alt="avatar"
+                    width={30}
+                    className="mr-2 rounded-full"
+                  />
+
+                  <span className="text-sm leading-5">
+                    <span className="text-lg font-semibold">Rohan Ali</span>{" "}
+                    donated <strong className="text-md">$10</strong> with a
+                    message:{" "}
+                    <span className="italic">
+                      “ I support you bro, lots of love ♥. ”
+                    </span>
+                  </span>
+                </div>
               </li>
               <li>
-                3 Lorem, ipsum dolor sit amet consectetur adipisicing elit.
-                Praesentium aliquam ipsum veniam?
+                <div className="my-2 flex items-center">
+                  <img
+                    src="/assets/avatar.gif"
+                    alt="avatar"
+                    width={30}
+                    className="mr-2 rounded-full"
+                  />
+
+                  <span className="text-sm leading-5">
+                    <span className="text-lg font-semibold">Rohan Ali</span>{" "}
+                    donated <strong className="text-md">$10</strong> with a
+                    message:{" "}
+                    <span className="italic">
+                      “ I support you bro, lots of love ♥. ”
+                    </span>
+                  </span>
+                </div>
               </li>
               <li>
-                4 Lorem ipsum dolor sit amet consectetur adipisicing elit. Quod
-                quos et impedit.
+                <div className="my-2 flex items-center">
+                  <img
+                    src="/assets/avatar.gif"
+                    alt="avatar"
+                    width={30}
+                    className="mr-2 rounded-full"
+                  />
+
+                  <span className="text-sm leading-5">
+                    <span className="text-lg font-semibold">Rohan Ali</span>{" "}
+                    donated <strong className="text-md">$10</strong> with a
+                    message:{" "}
+                    <span className="italic">
+                      “ I support you bro, lots of love ♥. ”
+                    </span>
+                  </span>
+                </div>
               </li>
               <li>
-                5 Lorem, ipsum dolor sit amet consectetur adipisicing elit. In
-                recusandae ut quisquam?
+                <div className="my-2 flex items-center">
+                  <img
+                    src="/assets/avatar.gif"
+                    alt="avatar"
+                    width={30}
+                    className="mr-2 rounded-full"
+                  />
+
+                  <span className="text-sm leading-5">
+                    <span className="text-lg font-semibold">Rohan Ali</span>{" "}
+                    donated <strong className="text-md">$10</strong> with a
+                    message:{" "}
+                    <span className="italic">
+                      “ I support you bro, lots of love ♥. ”
+                    </span>
+                  </span>
+                </div>
+              </li>
+              <li>
+                <div className="my-2 flex items-center">
+                  <img
+                    src="/assets/avatar.gif"
+                    alt="avatar"
+                    width={30}
+                    className="mr-2 rounded-full"
+                  />
+
+                  <span className="text-sm leading-5">
+                    <span className="text-lg font-semibold">Rohan Ali</span>{" "}
+                    donated <strong className="text-md">$10</strong> with a
+                    message:{" "}
+                    <span className="italic">
+                      “ I support you bro, lots of love ♥. ”
+                    </span>
+                  </span>
+                </div>
               </li>
             </ul>
           </div>
