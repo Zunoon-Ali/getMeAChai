@@ -27,14 +27,14 @@ const navbar = () => {
           </span>
         </div>
       </Link>
-      <div className="menuLinks">
+      {/* <div className="menuLinks">
         <ul className="flex items-center justify-center gap-6">
           <li>Home</li>
           <li>About</li>
           <li>Product</li>
           <li>Contact</li>
         </ul>
-      </div>
+      </div> */}
       <div className="action">
         {session ? (
           <>
@@ -90,7 +90,7 @@ const navbar = () => {
                 </li>
                 <li>
                   <Link
-                    href="#"
+                    href={`/${session.user.username}`}
                     onClick={() => {
                       setshowdropdown(false);
                     }}

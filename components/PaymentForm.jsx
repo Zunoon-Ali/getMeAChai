@@ -13,24 +13,77 @@ export default function PaymentForm() {
     payment: false,
   });
 
+  const [loading, setLoading] = useState(false);
+
   const handleBlur = (field) => {
     setTouched({ ...touched, [field]: true });
   };
 
-  const handleSubmit = (e) => {
+  const handleAmountClick = (amount) => {
+    setPayment(`$${amount}`);
+    setTouched({ ...touched, payment: true }); // mark as touched
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     setTouched({ name: true, msg: true, payment: true });
 
     if (name.length < 3 || msg.length < 3 || payment.length < 2) return;
 
-    // Process payment
-    console.log({ name, msg, payment });
-  };
+    setLoading(true);
 
-  const handleAmountClick = (amount) => {
-    setPayment(`$${amount}`);
-    setTouched({ ...touched, payment: true }); // mark as touched
+    try {
+      // Send data to backend API
+      const res = await fetch("/api/payments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: name,
+          message: msg,
+          amount: payment.replace("$", ""),
+        }),
+      });
+
+      // Check content type
+      const contentType = res.headers.get("content-type");
+      let data;
+      if (contentType && contentType.includes("application/json")) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        console.error("Non-JSON response:", text);
+        alert("Payment failed: see console for details");
+        setLoading(false);
+        return;
+      }
+
+      console.log("Payment Response:", data);
+
+      if (data.success) {
+        alert("Payment saved in DB! Opening Safepay sandbox...");
+
+        // Open Safepay sandbox payment page in new tab
+        if (data.transaction?.payment_url) {
+          window.open(data.transaction.payment_url, "_blank");
+        } else {
+          console.warn("No payment URL returned from backend.");
+        }
+
+        // Reset form
+        setName("");
+        setMsg("");
+        setPayment("");
+        setTouched({ name: false, msg: false, payment: false });
+      } else {
+        alert("Payment failed: " + data.error);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong: " + err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -70,14 +123,19 @@ export default function PaymentForm() {
       <div className="form-group mb-4">
         <label htmlFor="payment">Payment</label>
         <div className="relative">
-          {/* <span className="absolute left-2 top-2 text-white">$</span> */}
           <input
             type="text"
             id="payment"
             placeholder="Amount"
             className="w-full p-2 pl-6 rounded bg-slate-800 text-white"
             value={payment}
-            onChange={(e) => setPayment(e.target.value.startsWith("$") ? e.target.value : `$${e.target.value}`)}
+            onChange={(e) =>
+              setPayment(
+                e.target.value.startsWith("$")
+                  ? e.target.value
+                  : `$${e.target.value}`
+              )
+            }
             onBlur={() => handleBlur("payment")}
           />
         </div>
@@ -99,8 +157,13 @@ export default function PaymentForm() {
         ))}
       </div>
 
-        <button type="submit" className="text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-base text-sm px-4 py-2.5 text-center leading-5 px-4 py-2 bg-blue-500 rounded w-full font-bold"> Pay</button>
-      
+      <button
+        type="submit"
+        disabled={loading}
+        className="text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-base text-sm px-4 py-2.5 text-center leading-5 px-4 py-2 bg-blue-500 rounded w-full font-bold"
+      >
+        {loading ? "Processing..." : "Pay"}
+      </button>
     </form>
   );
 }

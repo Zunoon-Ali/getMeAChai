@@ -1,68 +1,50 @@
 import NextAuth from "next-auth";
-// import AppleProvider from "next-auth/providers/apple";
-// import FacebookProvider from "next-auth/providers/facebook";
-// import GoogleProvider from "next-auth/providers/google";
-// import EmailProvider from "next-auth/providers/email";
 import GitHubProvider from "next-auth/providers/github";
-import mongoose from "mongoose";
+import connectDb from "@/db/connectDb";
 import User from "@/models/User";
-import Payment from "@/models/Payment";
 
-
-export const authoptions = NextAuth({
+export const authOptions = {
   providers: [
     GitHubProvider({
       clientId: process.env.GITHUB_ID,
       clientSecret: process.env.GITHUB_SECRET,
     }),
-
-    // AppleProvider({
-    //   clientId: process.env.APPLE_ID,
-    //   clientSecret: process.env.APPLE_SECRET,
-    // }),
-    // FacebookProvider({
-    //   clientId: process.env.FACEBOOK_ID,
-    //   clientSecret: process.env.FACEBOOK_SECRET,
-    // }),
-    // GoogleProvider({
-    //   clientId: process.env.GOOGLE_ID,
-    //   clientSecret: process.env.GOOGLE_SECRET,
-    // }),
-
-    // EmailProvider({
-    //   server: process.env.MAIL_SERVER,
-    //   from: "NextAuth.js <no-reply@example.com>",
-    // }),
   ],
+
   callbacks: {
-  async signIn({ user, account, profile }) {
-    if (account.provider === "github") {
-      // Connect to the database
-      await mongoose.connect(process.env.MONGO_URI);
+    async signIn({ user, account }) {
+      if (account.provider === "github") {
+        await connectDb();
 
-      // GitHub email might not always be returned, handle undefined
-      const userEmail = user.email;
-      if (!userEmail) return false; // Cannot sign in without email
+        if (!user.email) return false;
 
-      const currentUser = await User.findOne({ email: userEmail });
+        const existing = await User.findOne({ email: user.email });
 
-      if (!currentUser) {
-        const newUser = new User({
-          email: userEmail,
-          username: userEmail.split("@")[0],
-        });
-        await newUser.save();
-        user.name = newUser.username;
-      } else {
-        user.name = currentUser.username;
+        if (!existing) {
+          await User.create({
+            email: user.email,
+            username: user.email.split("@")[0],
+          });
+        }
+      }
+      return true;
+    },
+
+    async session({ session }) {
+      await connectDb();
+
+      const dbUser = await User.findOne({ email: session.user.email });
+
+      if (dbUser) {
+        session.user.username = dbUser.username;
+        session.user.id = dbUser._id.toString();
       }
 
-      return true;
-    }
-    return true;
+      return session;
+    },
   },
-},
+};
 
-});
+const handler = NextAuth(authOptions);
 
-export { authoptions as GET, authoptions as POST };
+export { handler as GET, handler as POST };
