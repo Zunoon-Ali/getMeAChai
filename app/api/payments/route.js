@@ -1,4 +1,4 @@
-"use server"
+"use server";
 import connectDb from "@/db/connectDb";
 import Payment from "@/models/Payment";
 import { Safepay } from "@sfpy/node-sdk";
@@ -16,11 +16,10 @@ export async function POST(req) {
       );
     }
 
-    // Initialize Safepay sandbox
     const safepay = new Safepay({
       publicKey: process.env.SAFEPAY_PUBLIC_KEY,
       secretKey: process.env.SAFEPAY_SECRET_KEY,
-      env: "sandbox", // must be "sandbox"!
+      env: "sandbox",
     });
 
     // Create a transaction
