@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function PaymentForm() {
+  const router = useRouter();
   const [name, setName] = useState("");
   const [msg, setMsg] = useState("");
   const [payment, setPayment] = useState("");
@@ -21,7 +23,7 @@ export default function PaymentForm() {
 
   const handleAmountClick = (amount) => {
     setPayment(`$${amount}`);
-    setTouched({ ...touched, payment: true }); // mark as touched
+    setTouched({ ...touched, payment: true });
   };
 
   const handleSubmit = async (e) => {
@@ -34,7 +36,7 @@ export default function PaymentForm() {
     setLoading(true);
 
     try {
-      // Send data to backend API
+      // Send data to fake payment backend
       const res = await fetch("/api/payments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -45,42 +47,23 @@ export default function PaymentForm() {
         }),
       });
 
-      // Check content type
-      const contentType = res.headers.get("content-type");
-      let data;
-      if (contentType && contentType.includes("application/json")) {
-        data = await res.json();
-      } else {
-        const text = await res.text();
-        console.error("Non-JSON response:", text);
-        alert("Payment failed: see console for details");
-        setLoading(false);
-        return;
-      }
-
-      console.log("Payment Response:", data);
+      const data = await res.json();
 
       if (data.success) {
-        alert("Payment saved in DB! Opening Safepay sandbox...");
-
-        // Open Safepay sandbox payment page in new tab
-        if (data.transaction?.payment_url) {
-          window.open(data.transaction.payment_url, "_blank");
-        } else {
-          console.warn("No payment URL returned from backend.");
-        }
-
-        // Reset form
+        alert("Payment saved successfully!"); // fake success
+        router.push("/payment/success"); // redirect to success page
         setName("");
         setMsg("");
         setPayment("");
         setTouched({ name: false, msg: false, payment: false });
       } else {
         alert("Payment failed: " + data.error);
+        router.push("/payment/fail"); // redirect to fail page
       }
     } catch (err) {
       console.error(err);
       alert("Something went wrong: " + err.message);
+      router.push("/payment/fail");
     } finally {
       setLoading(false);
     }
@@ -108,7 +91,7 @@ export default function PaymentForm() {
         <label htmlFor="message">Message</label>
         <textarea
           id="message"
-          rows="4"
+          rows={4}
           placeholder="Write your thoughts..."
           className="w-full p-2 rounded bg-slate-800 text-white"
           value={msg}
@@ -160,7 +143,7 @@ export default function PaymentForm() {
       <button
         type="submit"
         disabled={loading}
-        className="text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-base text-sm px-4 py-2.5 text-center leading-5 px-4 py-2 bg-blue-500 rounded w-full font-bold"
+        className="text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded text-sm w-full font-bold py-2.5"
       >
         {loading ? "Processing..." : "Pay"}
       </button>

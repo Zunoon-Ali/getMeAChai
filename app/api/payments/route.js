@@ -1,63 +1,35 @@
-"use server";
-import connectDb from "@/db/connectDb";
 import Payment from "@/models/Payment";
-import { Safepay } from "@sfpy/node-sdk";
+import connectDB from "@/db/connectDb";
 
 export async function POST(req) {
-  await connectDb();
-
   try {
+    await connectDB();
+
     const { username, amount, message } = await req.json();
 
-    if (!username || !amount) {
-      return new Response(
-        JSON.stringify({ error: "Username and amount required" }),
-        { status: 400 }
-      );
-    }
+    // FAKE PAYMENT RESULT
+    const success = true; // always succeed (or add random fail)
 
-    const safepay = new Safepay({
-      publicKey: process.env.SAFEPAY_PUBLIC_KEY,
-      secretKey: process.env.SAFEPAY_SECRET_KEY,
-      env: "sandbox",
-    });
-
-    // Create a transaction
-    const transaction = safepay.createTransaction({
-      amount: Number(amount),
-      currency: "PKR",
-      merchantRef: `T${Date.now()}`,
-      description: message,
-      // optional: add return & response URLs
-      url_return: "https://your-dev-url.com/return",
-      url_response: "https://your-dev-url.com/response",
-    });
-
-    // Save transaction in MongoDB
-    const paymentDoc = await Payment.create({
-      username,
-      amount,
+    // Save to database
+    const payment = await Payment.create({
+      oid: `OID_${Date.now()}`, // fake order id
+      to_user: "admin", // fake recipient
+      name: username, // user entered name
       message,
-      status: "pending",
-      transaction_id: transaction.hash(), // Safepay transaction hash
+      amount: Number(amount),
+      status: success ? "success" : "failed",
+      createdAt: new Date(),
     });
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        payment: paymentDoc,
-        transaction: {
-          hash: transaction.hash(),
-          payment_url: transaction.publish(), // Safepay sandbox URL
-        },
-      }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ success: true, payment }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (err) {
-    console.error("Payment API Error:", err);
+    console.error("Fake Payment Error:", err);
     return new Response(
       JSON.stringify({ success: false, error: err.message }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
+      { status: 200, headers: { "Content-Type": "application/json" } }
     );
   }
 }
