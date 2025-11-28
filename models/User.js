@@ -7,10 +7,10 @@ const UserSchema = new Schema({
   email: { type: String, required: true },
   profilePic: { type: String },
   coverPic: { type: String },
+  safepayId: { type: String },
+  safepaySecret: { type: String },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
 
-// const User = ;
-
-export default mongoose.models.User || model("User", UserSchema);
+export default mongoose.models?.User || model("User", UserSchema);

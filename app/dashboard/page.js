@@ -3,9 +3,10 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { updateProfile, fetchUser } from "@/action/useractions";
 
 const Dashboard = () => {
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
   const router = useRouter();
 
   // ------------------ ALL HOOKS MUST BE HERE ------------------
@@ -13,8 +14,8 @@ const Dashboard = () => {
     name: "",
     email: "",
     username: "",
-    profilePic: null,
-    coverPic: null,
+    profilePic: "",
+    coverPic: "",
     safepayId: "",
     safepaySecret: "",
   });
@@ -22,7 +23,22 @@ const Dashboard = () => {
   const [touched, setTouched] = useState({});
   // -------------------------------------------------------------
 
+  const getData = async () => {
+    if (session && session.user && session.user.email) {
+      let u = await fetchUser(session.user.email);
+      if (u) {
+        setForm({
+          ...form,
+          ...u,
+          profilePic: u.profilePic || "",
+          coverPic: u.coverPic || "",
+        });
+      }
+    }
+  };
+
   useEffect(() => {
+    getData();
     if (status === "unauthenticated") {
       router.push("/login");
     }
@@ -46,13 +62,14 @@ const Dashboard = () => {
     name: !/^[A-Za-z ]+$/.test(form.name) ? "Only letters allowed" : "",
     email: !/^\S+@\S+\.\S+$/.test(form.email) ? "Invalid email format" : "",
     username: form.username.length < 3 ? "Username too short" : "",
-    profilePic: !form.profilePic ? "Profile picture required" : "",
-    coverPic: !form.coverPic ? "Cover picture required" : "",
+    profilePic: "", // Optional field
+    coverPic: "", // Optional field
     safepayId: form.safepayId.length < 5 ? "Invalid Safepay ID" : "",
-    safepaySecret: form.safepaySecret.length < 5 ? "Invalid Safepay Secret" : "",
+    safepaySecret:
+      form.safepaySecret.length < 5 ? "Invalid Safepay Secret" : "",
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const hasError = Object.values(errors).some((e) => e !== "");
@@ -61,7 +78,32 @@ const Dashboard = () => {
       return;
     }
 
-    alert("Form Submitted Successfully!");
+    // Create FormData from form state
+    const formData = new FormData();
+    Object.keys(form).forEach((key) => {
+      formData.append(key, form[key]);
+    });
+
+    console.log("Submitting form data:", form);
+
+    try {
+      const result = await updateProfile(formData, session.user.email);
+      console.log("Update result from server:", result);
+
+      if (result && result.error) {
+        alert("Update failed: " + result.error);
+        return;
+      }
+
+      await update(); // Update session
+      alert("Profile Updated Successfully!");
+
+      // Reload data to show updated values
+      await getData();
+    } catch (error) {
+      console.error("Update failed:", error);
+      alert("Failed to update profile: " + error.message);
+    }
   };
 
   return (
@@ -76,7 +118,9 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Name */}
           <div>
-            <label htmlFor="name" className="block mb-1">Name</label>
+            <label htmlFor="name" className="block mb-1">
+              Name
+            </label>
             <input
               id="name"
               type="text"
@@ -92,7 +136,9 @@ const Dashboard = () => {
 
           {/* Email */}
           <div>
-            <label htmlFor="email" className="block mb-1">Email</label>
+            <label htmlFor="email" className="block mb-1">
+              Email
+            </label>
             <input
               id="email"
               type="email"
@@ -110,7 +156,9 @@ const Dashboard = () => {
         {/* Username */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="username" className="block mb-1">Username</label>
+            <label htmlFor="username" className="block mb-1">
+              Username
+            </label>
             <input
               id="username"
               type="text"
@@ -130,11 +178,13 @@ const Dashboard = () => {
           <label className="block mb-1">Profile Picture</label>
           <input
             id="profilePic"
-            type="file"
-            accept="image/*"
+            type="text"
             className="w-full p-2 bg-slate-700 rounded text-slate-50"
+            value={form.profilePic}
             onChange={handleChange}
             onBlur={() => markTouched("profilePic")}
+            name="profilePic"
+            placeholder="Enter image URL"
           />
           {touched.profilePic && errors.profilePic && (
             <p className="text-red-400 text-sm">{errors.profilePic}</p>
@@ -146,11 +196,13 @@ const Dashboard = () => {
           <label className="block mb-1">Cover Picture</label>
           <input
             id="coverPic"
-            type="file"
-            accept="image/*"
+            type="text"
             className="w-full p-2 bg-slate-700 rounded text-slate-50"
+            value={form.coverPic}
             onChange={handleChange}
             onBlur={() => markTouched("coverPic")}
+            name="coverPic"
+            placeholder="Enter image URL"
           />
           {touched.coverPic && errors.coverPic && (
             <p className="text-red-400 text-sm">{errors.coverPic}</p>
@@ -159,7 +211,9 @@ const Dashboard = () => {
 
         {/* Safepay ID */}
         <div>
-          <label htmlFor="safepayId" className="block mb-1">Safepay ID</label>
+          <label htmlFor="safepayId" className="block mb-1">
+            Safepay ID
+          </label>
           <input
             id="safepayId"
             type="text"
@@ -175,7 +229,9 @@ const Dashboard = () => {
 
         {/* Safepay Secret */}
         <div>
-          <label htmlFor="safepaySecret" className="block mb-1">Safepay Secret</label>
+          <label htmlFor="safepaySecret" className="block mb-1">
+            Safepay Secret
+          </label>
           <input
             id="safepaySecret"
             type="text"

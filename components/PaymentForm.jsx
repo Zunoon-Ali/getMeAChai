@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-export default function PaymentForm() {
+export default function PaymentForm({ toUser }) {
   const router = useRouter();
   const [name, setName] = useState("");
   const [msg, setMsg] = useState("");
-  const [payment, setPayment] = useState("");
+  const [paymentAmount, setPaymentAmount] = useState("");
 
   const [touched, setTouched] = useState({
     name: false,
@@ -22,7 +24,7 @@ export default function PaymentForm() {
   };
 
   const handleAmountClick = (amount) => {
-    setPayment(`$${amount}`);
+    setPaymentAmount(`$${amount}`);
     setTouched({ ...touched, payment: true });
   };
 
@@ -31,7 +33,7 @@ export default function PaymentForm() {
 
     setTouched({ name: true, msg: true, payment: true });
 
-    if (name.length < 3 || msg.length < 3 || payment.length < 2) return;
+    if (name.length < 3 || msg.length < 3 || paymentAmount.length < 2) return;
 
     setLoading(true);
 
@@ -43,27 +45,52 @@ export default function PaymentForm() {
         body: JSON.stringify({
           username: name,
           message: msg,
-          amount: payment.replace("$", ""),
+          amount: paymentAmount.replace("$", ""),
+          to_user: toUser, // Send the recipient username
         }),
       });
 
       const data = await res.json();
 
       if (data.success) {
-        alert("Payment saved successfully!"); // fake success
-        router.push("/payment/success"); // redirect to success page
+        toast.success("Payment saved successfully!", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
         setName("");
         setMsg("");
-        setPayment("");
+        setPaymentAmount("");
         setTouched({ name: false, msg: false, payment: false });
       } else {
-        alert("Payment failed: " + data.error);
-        router.push("/payment/fail"); // redirect to fail page
+        toast.error("Payment failed: " + data.error, {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
       }
     } catch (err) {
       console.error(err);
-      alert("Something went wrong: " + err.message);
-      router.push("/payment/fail");
+      toast.error("Something went wrong: " + err.message, {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     } finally {
       setLoading(false);
     }
@@ -111,9 +138,9 @@ export default function PaymentForm() {
             id="payment"
             placeholder="Amount"
             className="w-full p-2 pl-6 rounded bg-slate-800 text-white"
-            value={payment}
+            value={paymentAmount}
             onChange={(e) =>
-              setPayment(
+              setPaymentAmount(
                 e.target.value.startsWith("$")
                   ? e.target.value
                   : `$${e.target.value}`
@@ -122,7 +149,7 @@ export default function PaymentForm() {
             onBlur={() => handleBlur("payment")}
           />
         </div>
-        {touched.payment && payment.length < 2 && (
+        {touched.payment && paymentAmount.length < 2 && (
           <span className="text-red-500 text-sm">Payment is required</span>
         )}
       </div>
@@ -147,6 +174,7 @@ export default function PaymentForm() {
       >
         {loading ? "Processing..." : "Pay"}
       </button>
+      <ToastContainer />
     </form>
   );
 }
