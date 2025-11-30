@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-export default function PaymentForm({ toUser }) {
+export default function PaymentForm({ toUser, onPaymentSuccess }) {
   const router = useRouter();
   const [name, setName] = useState("");
   const [msg, setMsg] = useState("");
@@ -67,6 +67,11 @@ export default function PaymentForm({ toUser }) {
         setMsg("");
         setPaymentAmount("");
         setTouched({ name: false, msg: false, payment: false });
+
+        // Refresh the page data
+        if (onPaymentSuccess) {
+          onPaymentSuccess();
+        }
       } else {
         toast.error("Payment failed: " + data.error, {
           position: "top-right",
@@ -166,11 +171,19 @@ export default function PaymentForm({ toUser }) {
           </button>
         ))}
       </div>
-
       <button
         type="submit"
-        disabled={loading}
-        className="text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded text-sm w-full font-bold py-2.5"
+        disabled={
+          loading ||
+          name.length < 3 ||
+          msg.length < 3 ||
+          paymentAmount.length < 2
+        }
+        className={`text-white font-medium rounded text-sm w-full font-bold py-2.5 focus:ring-4 focus:outline-none focus:ring-blue-300 ${
+          name.length < 3 || msg.length < 3 || paymentAmount.length < 2
+            ? "bg-slate-600 cursor-not-allowed"
+            : "bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl"
+        }`}
       >
         {loading ? "Processing..." : "Pay"}
       </button>

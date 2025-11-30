@@ -14,7 +14,7 @@ const navbar = () => {
     <nav className="bg-blue-950 text-white p-2 flex items-center justify-between w-full">
       <Link href={"/"}>
         <div className="flex items-center pl-2">
-          <h1 className="text-2xl font-extrabold flex items-center justify-center">
+          <h1 className="text-xl md:text-3xl font-extrabold flex items-center justify-center">
             GetMeAChai
           </h1>
 
@@ -22,7 +22,7 @@ const navbar = () => {
             <img
               src="/chai.gif"
               alt="chai"
-              className="w-14 h-14 relative -top-1 ml-1"
+              className="md:w-14 md:h-14 w-10 h-10 relative -top-1 ml-1"
             />
           </span>
         </div>
@@ -43,30 +43,34 @@ const navbar = () => {
               data-dropdown-toggle="dropdownDelay"
               data-dropdown-delay="500"
               data-dropdown-trigger="hover"
-              className="dropdownDelayButton items-center justify-center text-white bg-brand  hover:bg-brand-strong shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none flex"
+              className="dropdownDelayButton items-center justify-center text-white bg-brand  hover:bg-brand-strong shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none flex flex-col md:flex-row gap-2"
               type="button"
               onClick={() => {
                 setshowdropdown(!showdropdown);
               }}
             >
-              Welcome {session.user.email}
-              <svg
-                className="w-4 h-4 ms-1.5 -me-0.5"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="m19 9-7 7-7-7"
-                />
-              </svg>
+              <span>Welcome</span>
+
+              <span className="flex items-center gap-1">
+                {session.user.email}
+                <svg
+                  className="w-4 h-4"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="m19 9-7 7-7-7"
+                  />
+                </svg>
+              </span>
             </button>
 
             <div
@@ -105,7 +109,7 @@ const navbar = () => {
                     href="#"
                     onClick={() => {
                       setshowdropdown(false);
-                      signOut();
+                      signOut({ callbackUrl: "/" });
                     }}
                     className="inline-flex items-center w-full p-2 hover:bg-neutral-tertiary-medium hover:text-heading rounded"
                   >

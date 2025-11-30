@@ -4,7 +4,7 @@ import Separator from "@/components/separator";
 export default function Home() {
   return (
     <>
-      <div className="flex justify-center flex-col items-center text-white h-[44vh] w-1/2 text-center mx-auto">
+      <div className="flex justify-center flex-col items-center text-white md:h-[54vh] h-auto py-16 md:w-1/2 w-3/4 text-center mx-auto">
         <div className="font-bold text-3xl flex items-center justify-center text-center">
           Buy Me a Chai{" "}
           <span className="">

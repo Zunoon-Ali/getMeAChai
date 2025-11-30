@@ -1,7 +1,9 @@
 import React from "react";
 import PaymentForm from "@/components/PaymentForm";
 import PaymentPage from "@/components/PaymentPage";
-import { fetchPayment } from "@/action/useractions";
+import { fetchPayment, fetchUser } from "@/action/useractions";
+
+import { notFound } from "next/navigation";
 
 export default async function UsernamePage({ params }) {
   const { username } = await params;
@@ -9,6 +11,11 @@ export default async function UsernamePage({ params }) {
 
   // Fetch payments from database
   const payments = await fetchPayment(trimUsername);
+  const user = await fetchUser(trimUsername);
+
+  if (!user) {
+    notFound();
+  }
 
   console.log("🔍 Fetching payments for username:", trimUsername);
   console.log("📊 Payments found:", payments);
@@ -16,7 +23,7 @@ export default async function UsernamePage({ params }) {
 
   return (
     <>
-      <PaymentPage trimUsername={trimUsername} payment={payments} />
+      <PaymentPage trimUsername={trimUsername} payment={payments} user={user} />
     </>
   );
 }

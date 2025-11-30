@@ -1,26 +1,28 @@
 "use client";
 import React from "react";
 import Script from "next/script";
+import { useRouter } from "next/navigation";
 import PaymentForm from "@/components/PaymentForm";
 
-const PaymentPage = ({ trimUsername, payment = [] }) => {
+const PaymentPage = ({ trimUsername, payment = [], user }) => {
   console.log("💳 PaymentPage received payment prop:", payment);
   console.log("💳 Payment is array?", Array.isArray(payment));
   console.log("💳 Payment length:", payment?.length);
+  const router = useRouter();
 
   return (
     <>
       <div className="cover w-full relative">
         <img
-          src="/patreon_banner.gif"
+          src={user?.profilePic}
           alt="banner"
-          className="w-full object-cover h-[320px]"
+          className="w-full object-cover h-[320px] object-contain md:object-cover"
         />
         <div className="profile-img">
           <img
-            src="/profile-img.gif"
+            src={user?.coverPic}
             alt="profile"
-            className="absolute -bottom-16 left-1/2 -translate-x-1/2 w-32 h-32 rounded-full border-4 border-white object-cover"
+            className="absolute -bottom-16 left-1/2 -translate-x-1/2 w-32 h-32 rounded-full border-4 border-white object-cover object-position-center"
           />
         </div>
       </div>
@@ -31,28 +33,36 @@ const PaymentPage = ({ trimUsername, payment = [] }) => {
             {trimUsername}
           </h2>
           <h5 className="text-slate-600">
-            Hey I am developer, pleasure to meet you hacker
+           lets help {trimUsername} to get a chai !
           </h5>
 
           <div className="stats flex items-center justify-center gap-4">
             <span className="font-bold text-xs text-slate-400">
-              • 9178 members
+              • {payment.length} Payments
             </span>
-            <span className="font-bold text-xs text-slate-400">• 90 posts</span>
             <span className="font-bold text-xs text-slate-400">
-              • $12,343/release
+              • {payment.reduce((total, payment) => total + payment.amount, 0)}{" "}
+              raised
+            </span>
+            <span className="font-bold text-xs text-slate-400">
+              {/* • ${totalAmount}/release */}
             </span>
           </div>
         </div>
 
-        <div className="payment-info flex items-stretch justify-center gap-6 mt-4 w-[90%]">
+        <div className="payment-info flex items-stretch justify-center gap-6 mt-4 w-[90%] flex-col md:flex-row">
           {/* Left Support Box */}
-          <div className="support flex-1 bg-slate-900 p-6 rounded-lg flex flex-col justify-between w-1/2">
+          <div className="support flex-1 bg-slate-900 p-6 rounded-lg flex flex-col justify-between w-full md:w-1/2">
             <h2 className="text-lg font-bold mb-4">Support</h2>
             <ul className="flex-1 flex flex-col gap-2 text-white">
-              {payment.map((p, i) => {
+              {payment.length === 0 && (
+                <li className="text-center text-slate-400">
+                  No payments yet
+                </li>
+              )}
+              {payment.map((p) => {
                 return (
-                  <li key={i}>
+                  <li key={p._id}>
                     <div className="my-2 flex items-center">
                       <img
                         src="/assets/avatar.gif"
@@ -75,9 +85,12 @@ const PaymentPage = ({ trimUsername, payment = [] }) => {
           </div>
 
           {/* Right Payment Box */}
-          <div className="makePayment flex-1 bg-slate-900 p-6 rounded-lg flex flex-col w-1/2">
+          <div className="makePayment flex-1 bg-slate-900 p-6 rounded-lg flex flex-col w-full md:w-1/2">
             <h2 className="text-lg font-bold mb-4">Make Payment</h2>
-            <PaymentForm toUser={trimUsername} />
+            <PaymentForm
+              onPaymentSuccess={() => router.refresh()}
+              toUser={trimUsername}
+            />
           </div>
         </div>
       </div>

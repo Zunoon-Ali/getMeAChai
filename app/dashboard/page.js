@@ -21,6 +21,7 @@ const Dashboard = () => {
   });
 
   const [touched, setTouched] = useState({});
+  const [oldUsername, setOldUsername] = useState("");
   // -------------------------------------------------------------
 
   const getData = async () => {
@@ -33,6 +34,7 @@ const Dashboard = () => {
           profilePic: u.profilePic || "",
           coverPic: u.coverPic || "",
         });
+        setOldUsername(u.username);
       }
     }
   };
@@ -87,7 +89,7 @@ const Dashboard = () => {
     console.log("Submitting form data:", form);
 
     try {
-      const result = await updateProfile(formData, session.user.email);
+      const result = await updateProfile(formData, oldUsername);
       console.log("Update result from server:", result);
 
       if (result && result.error) {

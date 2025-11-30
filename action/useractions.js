@@ -92,6 +92,18 @@ export const updateProfile = async (data, oldusername) => {
       return { error: "User not found" };
     }
 
+    // If username changed, update all payments associated with the old username
+    if (oldusername !== ndata.username) {
+      console.log(
+        `Username changed from ${oldusername} to ${ndata.username}. Updating payments...`
+      );
+      const paymentUpdateResult = await Payment.updateMany(
+        { to_user: oldusername },
+        { $set: { to_user: ndata.username } }
+      );
+      console.log("Payment update result:", paymentUpdateResult);
+    }
+
     return { success: true };
   } catch (error) {
     console.error("Update error:", error);
